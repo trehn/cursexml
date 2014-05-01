@@ -1,36 +1,43 @@
 #!/usr/bin/env python
 import curses
+from sys import argv
 
 
-def draw(stdscr, pos_y, pos_x):
-    size_y, size_x = stdscr.getmaxyx()
-    at_bottom = False
-    longest_line = 0
-    for lineno in range(size_y):
-        line = get_line(pos_y + lineno)
-        if line is None:
-            at_bottom = True
-            stdscr.clrtobot()
-            break
-        if len(line) > longest_line:
-            longest_line = len(line)
-        stdscr.addstr(lineno, 0, line[pos_x:pos_x+size_x-1])
-        stdscr.clrtoeol()
-    stdscr.refresh()
-    return (at_bottom, longest_line)
+class XMLProxy(object):
+    def __init__(self, filename):
+        with open(filename) as f:
+            self.content = f.readlines()
+
+    def draw(self, stdscr, pos_y, pos_x):
+        size_y, size_x = stdscr.getmaxyx()
+        at_bottom = False
+        longest_line = 0
+        for lineno in range(size_y):
+            line = self.get_line(pos_y + lineno)
+            if line is None:
+                at_bottom = True
+                stdscr.clrtobot()
+                break
+            if len(line) > longest_line:
+                longest_line = len(line)
+            stdscr.addstr(lineno, 0, line[pos_x:pos_x+size_x-1])
+            stdscr.clrtoeol()
+        stdscr.refresh()
+        return (at_bottom, longest_line)
 
 
-def get_line(line):
-    if line > 520:
-        return None
-    else:
-        return "{}: {} F".format(line, 280 * "x")
+    def get_line(self, line):
+        try:
+            return self.content[line].rstrip()
+        except IndexError:
+            return None
 
 
-def main(stdscr):
+def main(stdscr, filename):
+    xml = XMLProxy(filename)
     pos_y = 0
     pos_x = 0
-    at_bottom, longest_line = draw(stdscr, pos_y, pos_x)
+    at_bottom, longest_line = xml.draw(stdscr, pos_y, pos_x)
     while True:
         size_y, size_x = stdscr.getmaxyx()
         try:
@@ -64,8 +71,12 @@ def main(stdscr):
                 pos_y = max(0, pos_y - size_y)
         else:
             continue
-        at_bottom, longest_line = draw(stdscr, pos_y, pos_x)
+        at_bottom, longest_line = xml.draw(stdscr, pos_y, pos_x)
 
 
 if __name__ == '__main__':
-    curses.wrapper(main)
+    try:
+        filename = argv[1]
+    except IndexError:
+        filename = None
+    curses.wrapper(main, filename)
