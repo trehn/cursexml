@@ -55,6 +55,12 @@ def main(stdscr):
         elif key == "KEY_RIGHT":
             if longest_line - pos_x >= size_x:
                 pos_x += 1
+        elif key == "KEY_NPAGE":
+            if not at_bottom:
+                pos_y += size_y
+        elif key == "KEY_PPAGE":
+            if pos_y > 0:
+                pos_y = max(0, pos_y - size_y)
         else:
             continue
         at_bottom, longest_line = draw(stdscr, pos_y, pos_x)
