@@ -33,23 +33,26 @@ def main(stdscr):
     at_bottom, longest_line = draw(stdscr, pos_y, pos_x)
     while True:
         try:
-            k = stdscr.getkey()
+            key = stdscr.getkey()
         except KeyboardInterrupt:
             break
-        if k == "q":
+        if key == "g":
+            pos_y = 0
+            pos_x = 0
+        elif key == "q":
             break
-        elif k == "KEY_RESIZE":
+        elif key == "KEY_RESIZE":
             pass  # avoid else to just do the redraw
-        elif k == "KEY_UP":
+        elif key == "KEY_UP":
             if pos_y > 0:
                 pos_y -= 1
-        elif k == "KEY_DOWN":
+        elif key == "KEY_DOWN":
             if not at_bottom:
                 pos_y += 1
-        elif k == "KEY_LEFT":
+        elif key == "KEY_LEFT":
             if pos_x > 0:
                 pos_x -= 1
-        elif k == "KEY_RIGHT":
+        elif key == "KEY_RIGHT":
             if longest_line - pos_x >= size_x:
                 pos_x += 1
         else:
