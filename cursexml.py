@@ -36,7 +36,7 @@ def main(stdscr):
             key = stdscr.getkey()
         except KeyboardInterrupt:
             break
-        if key == "g":
+        if key in ("g", "KEY_HOME"):
             pos_y = 0
             pos_x = 0
         elif key == "q":
