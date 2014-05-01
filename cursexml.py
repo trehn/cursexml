@@ -29,9 +29,9 @@ def get_line(line):
 def main(stdscr):
     pos_y = 0
     pos_x = 0
-    size_y, size_x = stdscr.getmaxyx()
     at_bottom, longest_line = draw(stdscr, pos_y, pos_x)
     while True:
+        size_y, size_x = stdscr.getmaxyx()
         try:
             key = stdscr.getkey()
         except KeyboardInterrupt:
