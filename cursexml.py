@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import curses
 from sys import argv
 
@@ -20,15 +23,16 @@ class XMLProxy(object):
                 break
             if len(line) > longest_line:
                 longest_line = len(line)
-            stdscr.addstr(lineno, 0, line[pos_x:pos_x+size_x-1])
+            line = line[pos_x:pos_x+size_x-1]
+            stdscr.addstr(lineno, 0, line.encode('utf-8'))
             stdscr.clrtoeol()
         stdscr.refresh()
         return (at_bottom, longest_line)
 
 
-    def get_line(self, line):
+    def get_line(self, lineno):
         try:
-            return self.content[line].rstrip()
+            line = self.content[lineno].rstrip()
         except IndexError:
             return None
 
