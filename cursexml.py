@@ -5,13 +5,23 @@ from __future__ import unicode_literals
 import curses
 from sys import argv
 
+from lxml import etree
+
 
 class XMLProxy(object):
     def __init__(self, filename):
-        with open(filename) as f:
-            self.content = f.readlines()
+        self.etree = etree.parse(filename)
+
+    def add_element(self, element, indent_level=0):
+        self.content.append(indent_level * "\t" + "<" + element.tag + ">")
+        for child in element:
+            self.add_element(child, indent_level=indent_level+1)
+        self.content.append(indent_level * "\t" + "</" + element.tag + ">\n")
 
     def draw(self, stdscr, pos_y, pos_x):
+        self.content = []
+        self.add_element(self.etree.getroot())
+
         size_y, size_x = stdscr.getmaxyx()
         at_bottom = False
         longest_line = 0
@@ -29,12 +39,12 @@ class XMLProxy(object):
         stdscr.refresh()
         return (at_bottom, longest_line)
 
-
     def get_line(self, lineno):
         try:
             line = self.content[lineno].rstrip()
         except IndexError:
             return None
+        return line
 
 
 def main(stdscr, filename):
