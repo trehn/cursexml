@@ -8,12 +8,30 @@ from sys import argv
 from lxml import etree
 
 
+def pretty_text(text, indent_level=0):
+    text = text.strip()
+    if "\n" in text:
+        indented_text = ""
+        for line in text.split("\n"):
+            if line.strip():
+                indented_text += indent_level * "\t" + line.strip() + "\n"
+        text = indented_text.rstrip()
+    return text
+
+
 class XMLProxy(object):
     def __init__(self, filename):
         self.etree = etree.parse(filename)
 
     def add_element(self, element, indent_level=0):
+        text = pretty_text(element.text.decode('utf-8'), indent_level=indent_level+1)
+        if "\n" not in text and len(text) < 5 and not list(element):
+            self.content.append(indent_level * "\t" + "<" + element.tag + ">" + text + "</" + element.tag + ">\n")
+            return
+
         self.content.append(indent_level * "\t" + "<" + element.tag + ">")
+        if text:
+            self.content += text.split("\n")
         for child in element:
             self.add_element(child, indent_level=indent_level+1)
         self.content.append(indent_level * "\t" + "</" + element.tag + ">\n")
