@@ -20,56 +20,48 @@ def pretty_text(text, indent_level=0):
 
 
 class XMLProxy(object):
-    def __init__(self, filename):
+    def __init__(self, filename, stdscr):
         self.etree = etree.parse(filename)
+        self.stdscr = stdscr
 
-    def add_element(self, element, indent_level=0):
+    def add_element(self, element, lineno, indent_level=0):
         text = pretty_text(element.text.decode('utf-8'), indent_level=indent_level+1)
         if "\n" not in text and len(text) < 5 and not list(element):
-            self.content.append(indent_level * "\t" + "<" + element.tag + ">" + text + "</" + element.tag + ">\n")
-            return
+            self.stdscr.addstr(lineno, 0, indent_level * "\t" + "<" + element.tag + ">" + text + "</" + element.tag + ">\n")
+            return lineno
 
-        self.content.append(indent_level * "\t" + "<" + element.tag + ">")
+        self.stdscr.addstr(lineno, 0, indent_level * "\t" + "<" + element.tag + ">")
         if text:
-            self.content += text.split("\n")
+            for line in text.split("\n"):
+                lineno += 1
+                self.stdscr.addstr(lineno, 0, line)
+
         for child in element:
-            self.add_element(child, indent_level=indent_level+1)
-        self.content.append(indent_level * "\t" + "</" + element.tag + ">\n")
+            lineno += 1
+            lineno = self.add_element(child, lineno, indent_level=indent_level+1)
 
-    def draw(self, stdscr, pos_y, pos_x):
+        lineno += 1
+        self.stdscr.addstr(lineno, 0, indent_level * "\t" + "</" + element.tag + ">\n")
+        return lineno
+
+    def draw(self, pos_y, pos_x):
         self.content = []
-        self.add_element(self.etree.getroot())
+        self.lines_drawn = 0
 
-        size_y, size_x = stdscr.getmaxyx()
+        self.size_y, self.size_x = self.stdscr.getmaxyx()
         at_bottom = False
         longest_line = 0
-        for lineno in range(size_y):
-            line = self.get_line(pos_y + lineno)
-            if line is None:
-                at_bottom = True
-                stdscr.clrtobot()
-                break
-            if len(line) > longest_line:
-                longest_line = len(line)
-            line = line[pos_x:pos_x+size_x-1]
-            stdscr.addstr(lineno, 0, line.encode('utf-8'))
-            stdscr.clrtoeol()
-        stdscr.refresh()
-        return (at_bottom, longest_line)
 
-    def get_line(self, lineno):
-        try:
-            line = self.content[lineno].rstrip()
-        except IndexError:
-            return None
-        return line
+        self.add_element(self.etree.getroot(), 0)
+
+        return (at_bottom, longest_line)
 
 
 def main(stdscr, filename):
-    xml = XMLProxy(filename)
+    xml = XMLProxy(filename, stdscr)
     pos_y = 0
     pos_x = 0
-    at_bottom, longest_line = xml.draw(stdscr, pos_y, pos_x)
+    at_bottom, longest_line = xml.draw(pos_y, pos_x)
     while True:
         size_y, size_x = stdscr.getmaxyx()
         try:
@@ -103,7 +95,7 @@ def main(stdscr, filename):
                 pos_y = max(0, pos_y - size_y)
         else:
             continue
-        at_bottom, longest_line = xml.draw(stdscr, pos_y, pos_x)
+        at_bottom, longest_line = xml.draw(pos_y, pos_x)
 
 
 if __name__ == '__main__':
