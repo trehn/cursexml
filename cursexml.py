@@ -156,4 +156,3 @@ if __name__ == '__main__':
     except IndexError:
         filename = None
     curses.wrapper(main, filename)
-    print curses.COLORS
