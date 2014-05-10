@@ -31,14 +31,14 @@ def indent(s, level):
     return level * "    " + s
 
 
-def pretty_text(text, indent_level=0):
+def pretty_text(text):
     text = text.strip()
     if "\n" in text:
-        indented_text = ""
+        stripped_text = ""
         for line in text.split("\n"):
             if line.strip():
-                indented_text += indent(line.strip() + "\n", indent_level)
-        text = indented_text.rstrip()
+                stripped_text += line.strip() + "\n"
+        text = stripped_text.rstrip()
     return text
 
 
@@ -50,8 +50,8 @@ class XMLProxy(object):
         self.pos_y = 0
 
     def add_element(self, element, lineno, indent_level=0):
-        text = pretty_text(element.text.decode('utf-8'), indent_level=indent_level+1)
-        if "\n" not in text and len(text) < 5 and not list(element):
+        text = pretty_text(element.text)
+        if "\n" not in text and len(text) < 36 and not list(element):
             self.add_str(lineno, indent("<", indent_level), color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
             for attr, value in sorted(element.items()):
@@ -72,7 +72,7 @@ class XMLProxy(object):
         if text:
             for line in text.split("\n"):
                 lineno += 1
-                self.add_str(lineno, line, color=RED)
+                self.add_str(lineno, indent(line, indent_level+1), color=RED)
 
         for child in element:
             lineno += 1
