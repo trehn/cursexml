@@ -21,6 +21,12 @@ class EndOfViewPort(Exception):
     pass
 
 
+def clean_tag(tag):
+    if tag.startswith("{"):
+        tag = tag.split("}", 1)[1]
+    return tag
+
+
 def indent(s, level):
     return level * "    " + s
 
@@ -47,16 +53,16 @@ class XMLProxy(object):
         text = pretty_text(element.text.decode('utf-8'), indent_level=indent_level+1)
         if "\n" not in text and len(text) < 5 and not list(element):
             self.add_str(lineno, indent("<", indent_level), color=CYAN)
-            self.add_str(lineno, element.tag, color=CYAN, bold=True)
+            self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
             self.add_str(lineno, ">", color=CYAN)
             self.add_str(lineno, text, color=RED)
             self.add_str(lineno, "</", color=CYAN)
-            self.add_str(lineno, element.tag, color=CYAN, bold=True)
+            self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
             self.add_str(lineno, ">", color=CYAN)
             return lineno
 
         self.add_str(lineno, indent("<", indent_level), color=CYAN)
-        self.add_str(lineno, element.tag, color=CYAN, bold=True)
+        self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
         self.add_str(lineno, ">", color=CYAN)
         if text:
             for line in text.split("\n"):
@@ -69,7 +75,7 @@ class XMLProxy(object):
 
         lineno += 1
         self.add_str(lineno, indent("</", indent_level), color=CYAN)
-        self.add_str(lineno, element.tag, color=CYAN, bold=True)
+        self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
         self.add_str(lineno, ">", color=CYAN)
         return lineno
 
