@@ -103,16 +103,17 @@ class XMLProxy(object):
             raise EndOfViewPort
         if line < self.pos_y:
             return
-        line_length = self.line_lengths.get(line, 0)
-        self.line_lengths[line] = line_length + len(s)
+        prev_line_length = self.line_lengths.get(line, 0)
+        self.line_lengths[line] = prev_line_length + len(s)
         if bold:
             attrs = curses.color_pair(color) | curses.A_BOLD
         else:
             attrs = curses.color_pair(color)
-        self.stdscr.addstr(
+        self.stdscr.addnstr(
             line - self.pos_y,
-            line_length,
-            s[self.pos_x:],
+            max(prev_line_length - self.pos_x, 0),
+            s[max(self.pos_x - prev_line_length, 0):],
+            self.size_x - max(prev_line_length - self.pos_x, 0),
             attrs,
         )
 
