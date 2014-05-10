@@ -27,10 +27,6 @@ def clean_tag(tag):
     return tag
 
 
-def indent(s, level):
-    return level * "    " + s
-
-
 def pretty_text(text):
     text = text.strip()
     if "\n" in text:
@@ -45,6 +41,7 @@ def pretty_text(text):
 class XMLProxy(object):
     def __init__(self, filename, stdscr):
         self.etree = etree.parse(filename)
+        self.show_indent_guides = True
         self.stdscr = stdscr
         self.pos_x = 0
         self.pos_y = 0
@@ -52,7 +49,8 @@ class XMLProxy(object):
     def add_element(self, element, lineno, indent_level=0):
         text = pretty_text(element.text)
         if "\n" not in text and len(text) < 36 and not list(element):
-            self.add_str(lineno, indent("<", indent_level), color=CYAN)
+            self.add_indent(lineno, level=indent_level)
+            self.add_str(lineno, "<", color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
             for attr, value in sorted(element.items()):
                 self.add_str(lineno, " " + attr, color=YELLOW, bold=True)
@@ -66,20 +64,23 @@ class XMLProxy(object):
             self.add_str(lineno, ">", color=CYAN)
             return lineno
 
-        self.add_str(lineno, indent("<", indent_level), color=CYAN)
+        self.add_indent(lineno, level=indent_level)
+        self.add_str(lineno, "<", color=CYAN)
         self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
         self.add_str(lineno, ">", color=CYAN)
         if text:
             for line in text.split("\n"):
                 lineno += 1
-                self.add_str(lineno, indent(line, indent_level+1), color=RED)
+                self.add_indent(lineno, level=indent_level+1)
+                self.add_str(lineno, line, color=RED)
 
         for child in element:
             lineno += 1
             lineno = self.add_element(child, lineno, indent_level=indent_level+1)
 
         lineno += 1
-        self.add_str(lineno, indent("</", indent_level), color=CYAN)
+        self.add_indent(lineno, level=indent_level)
+        self.add_str(lineno, "</", color=CYAN)
         self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
         self.add_str(lineno, ">", color=CYAN)
         return lineno
@@ -97,7 +98,7 @@ class XMLProxy(object):
         longest_line = max(self.line_lengths.values())
         return (at_bottom, longest_line)
 
-    def add_str(self, line, s, color=WHITE, bold=False):
+    def add_str(self, line, s, color=WHITE, bold=False, indent=0):
         if line >= self.pos_y + self.size_y:
             raise EndOfViewPort
         if line < self.pos_y:
@@ -111,9 +112,15 @@ class XMLProxy(object):
         self.stdscr.addstr(
             line - self.pos_y,
             line_length,
-            s[self.pos_x:].encode('utf-8'),
+            s[self.pos_x:],
             attrs,
         )
+
+    def add_indent(self, lineno, level=0):
+        if self.show_indent_guides:
+            self.add_str(lineno, "·   " * level, color=BLUE)
+        else:
+            self.add_str(lineno, "    " * level)
 
 
 def main(stdscr, filename):
@@ -134,6 +141,8 @@ def main(stdscr, filename):
         if key in ("g", "KEY_HOME"):
             xml.pos_y = 0
             xml.pos_x = 0
+        elif key == "i":
+            xml.show_indent_guides = not xml.show_indent_guides
         elif key == "q":
             break
         elif key == "KEY_RESIZE":
