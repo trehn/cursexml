@@ -54,6 +54,11 @@ class XMLProxy(object):
         if "\n" not in text and len(text) < 5 and not list(element):
             self.add_str(lineno, indent("<", indent_level), color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
+            for attr, value in sorted(element.items()):
+                self.add_str(lineno, " " + attr, color=YELLOW, bold=True)
+                self.add_str(lineno, "=\"", color=YELLOW)
+                self.add_str(lineno, value, color=MAGENTA)
+                self.add_str(lineno, "\"", color=YELLOW)
             self.add_str(lineno, ">", color=CYAN)
             self.add_str(lineno, text, color=RED)
             self.add_str(lineno, "</", color=CYAN)
