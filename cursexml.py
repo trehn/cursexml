@@ -162,22 +162,22 @@ def main(stdscr, filename):
             break
         elif key == "KEY_RESIZE":
             pass  # avoid else to just do the redraw
-        elif key == "KEY_UP":
+        elif key == "KEY_UP" or key == "k":
             if xml.pos_y > 0:
                 xml.pos_y -= 1
-        elif key == "KEY_DOWN":
+        elif key == "KEY_DOWN" or key == "j":
             if not at_bottom:
                 xml.pos_y += 1
-        elif key == "KEY_LEFT":
+        elif key == "KEY_LEFT" or key == "h":
             if xml.pos_x > 0:
                 xml.pos_x -= 1
-        elif key == "KEY_RIGHT":
+        elif key == "KEY_RIGHT" or key == "l":
             if longest_line - xml.pos_x >= size_x:
                 xml.pos_x += 1
-        elif key == "KEY_NPAGE":
+        elif key == "KEY_NPAGE" or key == "\x06":  # ^F
             if not at_bottom:
                 xml.pos_y += size_y
-        elif key == "KEY_PPAGE":
+        elif key == "KEY_PPAGE" or key == "\x02":  # ^B
             if xml.pos_y > 0:
                 xml.pos_y = max(0, xml.pos_y - size_y)
         else:
