@@ -44,16 +44,27 @@ class XMLProxy(object):
         self.pos_y = 0
 
     def add_element(self, element, lineno, indent_level=0):
+        # <foo
+        self.add_indent(lineno, level=indent_level)
+        self.add_str(lineno, "<", color=CYAN)
+        self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
+
+        # <foo attr="value"
+        for attr, value in sorted(element.items()):
+            self.add_str(lineno, " " + attr, color=YELLOW, bold=True)
+            self.add_str(lineno, "=\"", color=YELLOW)
+            self.add_str(lineno, value, color=MAGENTA)
+            self.add_str(lineno, "\"", color=YELLOW)
+
+        if element.text is None:
+            # <foo attr="value" />
+            self.add_str(lineno, " />", color=CYAN)
+            return lineno
+
         text = pretty_text(element.text)
+
         if "\n" not in text and len(text) < 36 and not list(element):
-            self.add_indent(lineno, level=indent_level)
-            self.add_str(lineno, "<", color=CYAN)
-            self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
-            for attr, value in sorted(element.items()):
-                self.add_str(lineno, " " + attr, color=YELLOW, bold=True)
-                self.add_str(lineno, "=\"", color=YELLOW)
-                self.add_str(lineno, value, color=MAGENTA)
-                self.add_str(lineno, "\"", color=YELLOW)
+            # <foo>short text</foo>
             self.add_str(lineno, ">", color=CYAN)
             self.add_str(lineno, text, color=RED)
             self.add_str(lineno, "</", color=CYAN)
@@ -61,20 +72,25 @@ class XMLProxy(object):
             self.add_str(lineno, ">", color=CYAN)
             return lineno
 
-        self.add_indent(lineno, level=indent_level)
-        self.add_str(lineno, "<", color=CYAN)
-        self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
-        self.add_str(lineno, ">", color=CYAN)
         if text:
+            # <foo>
+            #     longer or
+            #     multiline text
+            self.add_str(lineno, ">", color=CYAN)
             for line in text.split("\n"):
                 lineno += 1
                 self.add_indent(lineno, level=indent_level+1)
                 self.add_str(lineno, line, color=RED)
 
         for child in element:
+            # <foo>
+            #     <bar>
+            #     </bar>
             lineno += 1
             lineno = self.add_element(child, lineno, indent_level=indent_level+1)
 
+        # <foo>
+        # </foo>
         lineno += 1
         self.add_indent(lineno, level=indent_level)
         self.add_str(lineno, "</", color=CYAN)
