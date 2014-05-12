@@ -138,12 +138,13 @@ class XMLProxy(object):
 
 
 def main(stdscr, filename):
-    curses.init_pair(GREEN, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    curses.init_pair(BLUE, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    curses.init_pair(RED, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(CYAN, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    curses.init_pair(MAGENTA, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    curses.init_pair(YELLOW, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.use_default_colors()
+    curses.init_pair(GREEN, curses.COLOR_MAGENTA, -1)
+    curses.init_pair(BLUE, curses.COLOR_BLUE, -1)
+    curses.init_pair(RED, curses.COLOR_RED, -1)
+    curses.init_pair(CYAN, curses.COLOR_CYAN, -1)
+    curses.init_pair(MAGENTA, curses.COLOR_MAGENTA, -1)
+    curses.init_pair(YELLOW, curses.COLOR_YELLOW, -1)
     xml = XMLProxy(filename, stdscr)
     at_bottom, longest_line = xml.draw()
     while True:
