@@ -44,12 +44,12 @@ class XMLProxy(object):
         self.pos_y = 0
 
     def add_element(self, element, lineno, indent_level=0):
-        # <foo
+        # <tag
         self.add_indent(lineno, level=indent_level)
         self.add_str(lineno, "<", color=CYAN)
         self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
 
-        # <foo attr="value"
+        # <tag attr="value"
         for attr, value in sorted(element.items()):
             self.add_str(lineno, " " + attr, color=YELLOW, bold=True)
             self.add_str(lineno, "=\"", color=YELLOW)
@@ -57,22 +57,22 @@ class XMLProxy(object):
             self.add_str(lineno, "\"", color=YELLOW)
 
         if element.text is None:
-            # <foo attr="value" />
+            # <tag attr="value" />
             self.add_str(lineno, " />", color=CYAN)
             return lineno
         elif not list(element) and not element.text.strip():
-            # <foo></foo>
+            # <tag></tag>
             self.add_str(lineno, "></", color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
             self.add_str(lineno, ">", color=CYAN)
             return lineno
 
-        # <foo>
+        # <tag>
         self.add_str(lineno, ">", color=CYAN)
         text = strip_text(element.text)
 
         if "\n" not in text and len(text) < 36 and not list(element):
-            # <foo>short text</foo>
+            # <tag>short text</tag>
             self.add_str(lineno, text, color=RED)
             self.add_str(lineno, "</", color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
@@ -80,7 +80,7 @@ class XMLProxy(object):
             return lineno
 
         if text:
-            # <foo>
+            # <tag>
             #     longer or
             #     multiline text
             for line in text.split("\n"):
@@ -89,14 +89,14 @@ class XMLProxy(object):
                 self.add_str(lineno, line, color=RED)
 
         for child in element:
-            # <foo>
-            #     <bar>
-            #     </bar>
+            # <tag>
+            #     <child>
+            #     </child>
             lineno += 1
             lineno = self.add_element(child, lineno, indent_level=indent_level+1)
 
-        # <foo>
-        # </foo>
+        # <tag>
+        # </tag>
         lineno += 1
         self.add_indent(lineno, level=indent_level)
         self.add_str(lineno, "</", color=CYAN)
