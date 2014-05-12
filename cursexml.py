@@ -60,12 +60,19 @@ class XMLProxy(object):
             # <foo attr="value" />
             self.add_str(lineno, " />", color=CYAN)
             return lineno
+        elif not list(element) and not element.text.strip():
+            # <foo></foo>
+            self.add_str(lineno, "></", color=CYAN)
+            self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
+            self.add_str(lineno, ">", color=CYAN)
+            return lineno
 
+        # <foo>
+        self.add_str(lineno, ">", color=CYAN)
         text = strip_text(element.text)
 
         if "\n" not in text and len(text) < 36 and not list(element):
             # <foo>short text</foo>
-            self.add_str(lineno, ">", color=CYAN)
             self.add_str(lineno, text, color=RED)
             self.add_str(lineno, "</", color=CYAN)
             self.add_str(lineno, clean_tag(element.tag), color=CYAN, bold=True)
@@ -76,7 +83,6 @@ class XMLProxy(object):
             # <foo>
             #     longer or
             #     multiline text
-            self.add_str(lineno, ">", color=CYAN)
             for line in text.split("\n"):
                 lineno += 1
                 self.add_indent(lineno, level=indent_level+1)
