@@ -24,7 +24,7 @@ def clean_tag(tag):
     return tag
 
 
-def pretty_text(text):
+def strip_text(text):
     text = text.strip()
     if "\n" in text:
         stripped_text = ""
@@ -61,7 +61,7 @@ class XMLProxy(object):
             self.add_str(lineno, " />", color=CYAN)
             return lineno
 
-        text = pretty_text(element.text)
+        text = strip_text(element.text)
 
         if "\n" not in text and len(text) < 36 and not list(element):
             # <foo>short text</foo>
