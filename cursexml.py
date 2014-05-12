@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import curses
 from sys import argv
 
