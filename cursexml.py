@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+from argparse import ArgumentParser
 import curses
-from sys import argv
 
 from lxml import etree
 
@@ -192,8 +192,12 @@ def main(stdscr, filename):
 
 
 if __name__ == '__main__':
-    try:
-        filename = argv[1]
-    except IndexError:
-        filename = None
-    curses.wrapper(main, filename)
+    parser = ArgumentParser(prog="cursexml", description="CurseXML - command line XML viewer")
+    parser.add_argument(
+        'file',
+        metavar="FILE",
+        type=str,
+        help="file to open",
+    )
+    args = parser.parse_args()
+    curses.wrapper(main, args.file)
