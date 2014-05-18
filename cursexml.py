@@ -143,7 +143,7 @@ class XMLProxy(object):
             self.add_str(lineno, "    " * level)
 
 
-def main(stdscr, filename):
+def view_xml(stdscr, filename):
     curses.use_default_colors()
     curses.init_pair(GREEN, curses.COLOR_MAGENTA, -1)
     curses.init_pair(BLUE, curses.COLOR_BLUE, -1)
@@ -191,7 +191,7 @@ def main(stdscr, filename):
         at_bottom, longest_line = xml.draw()
 
 
-if __name__ == '__main__':
+def main(*args, **kwargs):
     parser = ArgumentParser(prog="cursexml", description="CurseXML - command line XML viewer")
     parser.add_argument(
         'file',
@@ -200,4 +200,8 @@ if __name__ == '__main__':
         help="file to open",
     )
     args = parser.parse_args()
-    curses.wrapper(main, args.file)
+    curses.wrapper(view_xml, args.file)
+
+
+if __name__ == '__main__':
+    main()
