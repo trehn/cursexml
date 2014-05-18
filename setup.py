@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='cursexml',
-    version="0.1.0",
+    version="0.2.0-dev",
     author="Torsten Rehn",
     author_email="torsten@rehn.email",
     license="GPLv3",
