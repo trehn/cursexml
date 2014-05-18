@@ -3,3 +3,5 @@ This is a not-very-serious attempt at a command-line XML viewer that does pretty
 I started this to learn more about curses, so I'm duplicating a lot of stuff you could otherwise accomplish by piping `xmllint` into `less`.
 
 One major caveat is that performance will degrade the further down you scroll in a large file.
+
+If you still think this might come in handy, you can install it with `pip install cursexml`.
